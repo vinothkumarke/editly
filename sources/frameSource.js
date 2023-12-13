@@ -19,6 +19,7 @@ import {
   imageFrameSource,
   imageOverlayFrameSource,
   slideInTextFrameSource,
+  simpleTextFrameSource,
 } from './fabric/fabricFrameSources.js';
 import createVideoFrameSource from './videoFrameSource.js';
 import createGlFrameSource from './glFrameSource.js';
@@ -34,6 +35,7 @@ const fabricFrameSources = {
   'fill-color': fillColorFrameSource,
   'news-title': newsTitleFrameSource,
   'slide-in-text': slideInTextFrameSource,
+  'simple-text': simpleTextFrameSource,
 };
 
 export async function createFrameSource({ clip, clipIndex, width, height, channels, verbose, logTimes, ffmpegPath, ffprobePath, enableFfmpegLog, framerateStr }) {

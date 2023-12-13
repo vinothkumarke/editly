@@ -415,6 +415,43 @@ export async function slideInTextFrameSource({ width, height, params: { position
   return { onRender };
 }
 
+
+export async function simpleTextFrameSource({ width, height, params: { position, text, fontSize = 0.05, charSpacing = 0.1, color = '#ffffff', fontFamily = defaultFontFamily } = {} }) {
+  async function onRender(progress, canvas) {
+    const fontSizeAbs = Math.round(width * fontSize);
+
+    const { left, top, originX, originY } = getPositionProps({ position, width, height });
+
+    const textBox = new fabric.Text(text, {
+      fill: color,
+      fontFamily,
+      fontSize: fontSizeAbs,
+      charSpacing: width * charSpacing,
+    });
+
+    const { opacity, textSlide } = getFrameByKeyFrames([
+      { t: 0.1, props: { opacity: 1, textSlide: 0 } },
+      { t: 0.3, props: { opacity: 1, textSlide: 1 } },
+      { t: 0.8, props: { opacity: 1, textSlide: 1 } },
+      { t: 0.9, props: { opacity: 0, textSlide: 1 } },
+    ], progress);
+
+    const fadedObject = await getFadedObject({ object: textBox, progress: easeInOutCubic(textSlide) });
+    fadedObject.setOptions({
+      originX,
+      originY,
+      top,
+      left,
+      opacity,
+    });
+
+    canvas.add(fadedObject);
+  }
+
+  return { onRender };
+}
+
+
 export async function customFabricFrameSource({ canvas, width, height, params }) {
   return params.func(({ width, height, fabric, canvas, params }));
 }
