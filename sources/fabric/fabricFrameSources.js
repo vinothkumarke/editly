@@ -416,36 +416,21 @@ export async function slideInTextFrameSource({ width, height, params: { position
 }
 
 
-export async function simpleTextFrameSource({ width, height, params: { position, text, fontSize = 0.05, charSpacing = 0.1, color = '#ffffff', fontFamily = defaultFontFamily } = {} }) {
+export async function simpleTextFrameSource({ width, height, params: { position, text, fontSize = 25, textColor = 'black', backgroundColor = 'white', fontFamily = 'trebuchet ms', topGap = 40, leftGap = 40 } = {} }) {
   async function onRender(progress, canvas) {
-    const fontSizeAbs = Math.round(width * fontSize);
 
-    const { left, top, originX, originY } = getPositionProps({ position, width, height });
-
-    const textBox = new fabric.Text(text, {
-      fill: color,
-      fontFamily,
-      fontSize: fontSizeAbs,
-      charSpacing: width * charSpacing,
+    const textBox = new fabric.Textbox(text, {
+      left: leftGap,
+      top: topGap,
+      width: (width - leftGap - leftGap),
+      fontSize: fontSize,
+      textAlign: 'center',
+      fill: textColor,
+      textBackgroundColor: backgroundColor,
+      fontFamily: fontFamily
     });
 
-    const { opacity, textSlide } = getFrameByKeyFrames([
-      { t: 0.1, props: { opacity: 1, textSlide: 0 } },
-      { t: 0.3, props: { opacity: 1, textSlide: 1 } },
-      { t: 0.8, props: { opacity: 1, textSlide: 1 } },
-      { t: 0.9, props: { opacity: 0, textSlide: 1 } },
-    ], progress);
-
-    const fadedObject = await getFadedObject({ object: textBox, progress: easeInOutCubic(textSlide) });
-    fadedObject.setOptions({
-      originX,
-      originY,
-      top,
-      left,
-      opacity,
-    });
-
-    canvas.add(fadedObject);
+    canvas.add(textBox);
   }
 
   return { onRender };
