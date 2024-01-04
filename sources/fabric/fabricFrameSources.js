@@ -416,7 +416,7 @@ export async function slideInTextFrameSource({ width, height, params: { position
 }
 
 
-export async function simpleTextFrameSource({ width, height, params: { position, text, fontSize = 25, textColor = 'black', backgroundColor = 'white', fontFamily = 'trebuchet ms', topGap = 40, leftGap = 40 } = {} }) {
+export async function simpleTextFrameSource({ width, height, params: { position, text, fontSize = 20, textColor = 'black', backgroundColor = 'white', fontFamily = 'TWK Lausanne', topGap = 40, leftGap = 40, fontWeight = 'bold' } = {} }) {
   async function onRender(progress, canvas) {
 
     const textBox = new fabric.Textbox(text, {
@@ -427,7 +427,8 @@ export async function simpleTextFrameSource({ width, height, params: { position,
       textAlign: 'center',
       fill: textColor,
       textBackgroundColor: backgroundColor,
-      fontFamily: fontFamily
+      fontFamily: fontFamily,
+      fontWeight: fontWeight
     });
 
     canvas.add(textBox);
