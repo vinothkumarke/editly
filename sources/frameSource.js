@@ -35,7 +35,8 @@ const fabricFrameSources = {
   'fill-color': fillColorFrameSource,
   'news-title': newsTitleFrameSource,
   'slide-in-text': slideInTextFrameSource,
-  'simple-text': simpleTextFrameSource,
+  'description-text': simpleTextFrameSource,
+  'attribute-text': simpleTextFrameSource,
 };
 
 export async function createFrameSource({ clip, clipIndex, width, height, channels, verbose, logTimes, ffmpegPath, ffprobePath, enableFfmpegLog, framerateStr }) {
