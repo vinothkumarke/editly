@@ -417,21 +417,85 @@ export async function slideInTextFrameSource({ width, height, params: { position
 
 export async function simpleTextFrameSource({ width, height, params: { position, text, fontSize = 20, textColor = 'black', backgroundColor = 'white', fontFamily = 'TWK Lausanne', topGap = 120, leftGap = 40, fontWeight = 'bold' } = {} }) {
   async function onRender(progress, canvas) {
-    const textBox = new fabric.Textbox(text, {
-      left: leftGap,
-      top: topGap,
-      width: (width - leftGap - leftGap),
+    const textMeasure = new fabric.Textbox(text, {
+      width: width - leftGap - leftGap,
       fontSize,
-      textAlign: 'center',
-      fill: textColor,
-      textBackgroundColor: backgroundColor,
       fontFamily,
       fontWeight,
     });
 
-    canvas.add(textBox);
-  }
+    let theText; let textHeight; let rectPadding; let rectMargin; let top = 0; const shapes = [];
+    const pos = {
+      x: leftGap,
+      y: topGap,
+      padding: { top: 6, right: 12, bottom: 6, left: 12 },
+      margin: { top: 2, right: 0, bottom: 2, left: 0 },
+    };
+    // eslint-disable-next-line no-underscore-dangle
+    for (let i = 0; i < textMeasure._textLines.length; i += 1) {
+      // eslint-disable-next-line no-underscore-dangle
+      theText = textMeasure._textLines[i].join('');
+      textHeight = Math.floor(textMeasure.lineHeight * textMeasure.fontSize); // textMeasure.getHeightOfLine(i)
 
+      // Make the text node for line i
+      const itext = new fabric.IText(theText, {
+        top,
+        left: leftGap,
+        fill: textColor,
+        stroke: '',
+        fontWeight,
+        fontSize,
+        fontFamily,
+      });
+
+      // create the outer 'margin' rect, note the position is negatively offset for padding & margin
+      // and the width is sized from the dimensions of the text node plus 2 x (padding + margin).
+      rectMargin = new fabric.Rect({
+        left: -1 * (pos.padding.left + pos.margin.left),
+        top: top - (pos.padding.top + pos.margin.top),
+        width: itext.width + ((pos.padding.left + pos.padding.right) + (pos.margin.left + pos.margin.right)),
+        height: textHeight + ((pos.padding.top + pos.padding.bottom) + (pos.margin.top + pos.margin.bottom)),
+        fill: 'transparent',
+      });
+
+      // create the inner 'padding' rect, note the position is offset for padding only
+      // and the width is sized from the dimensions of the text node plus 2 x padding.
+      rectPadding = new fabric.Rect({
+        left: -1 * pos.padding.left,
+        top: top - pos.padding.top,
+        width: itext.width + (pos.padding.left + pos.padding.right),
+        height: textHeight + (pos.padding.top + pos.padding.bottom),
+        fill: backgroundColor,
+      });
+
+      shapes.push(rectMargin);
+      shapes.push(rectPadding);
+      shapes.push(itext);
+
+      // approximate calculation for center alignment
+      const rectPaddingLeft = (textMeasure.width - rectMargin.width) / 2;
+      rectPadding.left = rectPaddingLeft;
+      rectMargin.left = rectPaddingLeft;
+      itext.left = rectPaddingLeft + ((pos.padding.left) + (pos.margin.left));
+
+      // move the insert point down by the height of the line
+      top = top - 1 + textHeight + pos.padding.top + pos.margin.top + pos.padding.bottom + pos.margin.bottom;
+    }
+
+    // At this point we have a list of shapes to output in the shapes[] array.
+    // Create group and add the shapes to group.
+    // note that group is positioned so that the topleft of the first text line is where
+    // it would fall if it were a standard text node.
+    const group = new fabric.Group(shapes, {
+      left: pos.x - (pos.padding.left - pos.margin.left),
+      top: pos.y - (pos.padding.top - pos.margin.top),
+    });
+
+    // center align accurately with the help of grouped elements
+    group.left = (width - group.width) / 2;
+
+    canvas.add(group);
+  }
   return { onRender };
 }
 
